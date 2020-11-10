@@ -12,6 +12,13 @@ import "tasks/Ten_X_Tool.wdl" as TENX
 import "tasks/JupyterNotebooks.wdl" as JUPYTER
 
 workflow PB10xMasSeqSingleFlowcell {
+
+    meta {
+        description : "This workflow is designed to process data from the MASSeq protocol and produce aligned reads that are ready for downstream analysis (e.g. transcript isoform identification).  It takes in a raw PacBio run folder location on GCS and produces a folder containing the aligned reads and other processed data."
+        author : "Jonn Smith"
+        email : "jonn@broadinstitute.org"
+    }
+
     input {
         String gcs_input_dir
         String gcs_out_root_dir
