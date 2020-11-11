@@ -1,27 +1,38 @@
 version 1.0
-
-task ExtractBoundedReadSectionsTask {
-
-    meta {
-        description : "Run extract_bounded_read_sections on a dataset to map out known and unknown segments of reads."
-        author : "Jonn Smith"
-        email : "jonn@broadinstitute.org"
-    }
-
+# Run extract_bounded_read_sections on a dataset to map out known and unknown segments of reads.
+#
+# Description of inputs:
+#
+#   Required:
+#     File reads_file            - SAM/BAM/FASTA/FASTQ file containing reads for which to determine the layout.
+#     File segments_fasta        - FASTA file containing the sequences and names of known possible segments in the reads.
+#     File boundaries_file       - A plain text file with two comma separated sequence names per line.  The names should correspond to the sequence names in the given sequence FASTA file.
+#
+#   Optional:
+#     Float min_qual             - Minimum quality for good alignment.
+#     Int min_bases              - Minimum number of bases for an alignment to be retained.
+#     Float prec_known           - Probability of recombination for known segment alignment.
+#     Float prec_unknown         - Probability of recombination for UNKNOWN segment alignment.
+#     Boolean use_mosaic_aligner - If True, will use MosaicAligner instead of Tesserae for alignments.
+#
+#   Runtime:
+#     Int  mem                   - Amount of memory to give to the machine running each task in this workflow.
+#     Int  preemptible_attempts  - Number of times to allow each task in this workflow to be preempted.
+#     Int  disk_space_gb         - Amount of storage disk space (in Gb) to give to each machine running each task in this workflow.
+#     Int  cpu                   - Number of CPU cores to give to each machine running each task in this workflow.
+#     Int  boot_disk_size_gb     - Amount of boot disk space (in Gb) to give to each machine running each task in this workflow.
+#
+workflow ExtractBoundedReadSections {
     input {
-        # ------------------------------------------------
-        # Input args:
-        # Required:
-
         File reads_file
         File segments_fasta
         File boundaries_file
 
-        Int? max_read_length
         Float? min_qual
         Int? min_bases
         Float? prec_known
         Float? prec_unknown
+        Boolean? use_mosaic_aligner
 
         Int? mem_gb
         Int? preemptible_attempts
@@ -30,26 +41,62 @@ task ExtractBoundedReadSectionsTask {
         Int? boot_disk_size_gb
     }
 
-    parameter_meta {
-        reads_file : "SAM/BAM/FASTA/FASTQ file containing reads for which to determine the layout."
-        segments_fasta : "FASTA file containing unique segments for which to search in the given BAM files.   These segments are used as delimiters in the reads.  Read splitting uses these delimiters and the boundaries file."
-        boundaries_file : "Text file containing two comma-separated segment names from the segments_fasta on each line.  These entries define delimited sections to be extracted from the reads and treated as individual array elements."
+    String docker_image = "jonnsmith/lrma_cartographer:latest"
 
-        max_read_length : "[optional] The read length beyond which a read will not be processed."
-        min_qual : "[optional] Minimum quality for good alignment."
-        min_bases : "[optional] Minimum number of bases for an alignment to be retained."
-        prec_known : "[optional] Probability of recombination for known segment alignment."
-        prec_unknown : "[optional] Probability of recombination for UNKNOWN segment alignment."
+    call ExtractBoundedReadSectionsTask {
+        input:
+            docker_image              = docker_image,
 
-        mem_gb : "[optional] Amount of memory to give to the machine running each task in this workflow."
-        preemptible_attempts : "[optional] Number of times to allow each task in this workflow to be preempted."
-        disk_space_gb : "[optional] Amount of storage disk space (in Gb) to give to each machine running each task in this workflow."
-        cpu : "[optional] Number of CPU cores to give to each machine running each task in this workflow."
-        boot_disk_size_gb : "[optional] Amount of boot disk space (in Gb) to give to each machine running each task in this workflow."
+            reads_file                = reads_file,
+            segments_fasta            = segments_fasta,
+            boundaries_file           = boundaries_file,
+
+            min_qual                  = min_qual,
+            min_bases                 = min_bases,
+            prec_known                = prec_known,
+            prec_unknown              = prec_unknown,
+            use_mosaic_aligner        = use_mosaic_aligner,
+
+            mem_gb                    = mem_gb,
+            preemptible_attempts      = preemptible_attempts,
+            disk_space_gb             = disk_space_gb,
+            cpu                       = cpu,
+            boot_disk_size_gb         = boot_disk_size_gb
     }
 
-    # Docker image:
-    String docker_image = "jonnsmith/lrma_cartographer:latest"
+    output {
+      File extracted_reads = ExtractBoundedReadSectionsTask.extracted_reads
+      File log_file        = ExtractBoundedReadSectionsTask.log_file
+      File timing_info     = ExtractBoundedReadSectionsTask.timing_info
+    }
+}
+
+task ExtractBoundedReadSectionsTask {
+
+    input {
+        # ------------------------------------------------
+        # Input args:
+        # Required:
+
+        # Runtime Options:
+        String docker_image
+
+        File reads_file
+        File segments_fasta
+        File boundaries_file
+
+        Float? min_qual
+        Int? min_bases
+        Float? prec_known
+        Float? prec_unknown
+        Boolean? use_mosaic_aligner
+
+        Int? mem_gb
+        Int? preemptible_attempts
+        Int? disk_space_gb
+        Int? cpu
+        Int? boot_disk_size_gb
+    }
 
     # ------------------------------------------------
     # Process input args:
@@ -58,11 +105,11 @@ task ExtractBoundedReadSectionsTask {
     String timing_output_file = "timingInformation.txt"
     String memory_log_file = "memory_log.txt"
 
-    String max_read_length_arg = if defined(max_read_length) then " --max_read_length " else ""
     String min_qual_arg = if defined(min_qual) then " --minqual " else ""
     String min_bases_arg = if defined(min_bases) then " --minbases " else ""
     String prec_known_arg = if defined(prec_known) then " --prec_known " else ""
     String prec_unknown_arg = if defined(prec_unknown) then " --prec_unknown " else ""
+    String mosaic_aligner_arg = if defined(use_mosaic_aligner) then " --MOSAIC " else ""
 
     # ------------------------------------------------
     # Get machine settings:
@@ -103,12 +150,11 @@ task ExtractBoundedReadSectionsTask {
             -r ~{reads_file} \
             -s ~{segments_fasta} \
             -b ~{boundaries_file} \
-            ~{max_read_length_arg}~{default="" sep=" --max_read_length " max_read_length} \
             ~{min_qual_arg}~{default="" sep=" --minqual " min_qual} \
             ~{min_bases_arg}~{default="" sep=" --minbases " min_qual} \
             ~{prec_known_arg}~{default="" sep=" --prec_known " prec_known} \
             ~{prec_unknown_arg}~{default="" sep=" --prec_unknown " prec_unknown} \
-            --aligner BWA_MEM \
+            ~{mosaic_aligner_arg} \
             2>&1 | tee ~{log_file_name}
 
         endTime=`date +%s.%N`
@@ -151,14 +197,9 @@ task ExtractBoundedReadSectionsTask {
     # Outputs:
     output {
       # Default output file name:
-      File extracted_reads            = "extracted_bounded_sub_reads.fasta"
-      File rejected_reads             = "extracted_bounded_sub_reads.rejected.fasta"
-      File raw_marker_alignments      = "extracted_bounded_sub_reads.raw_marker_alignments.txt"
-      File initial_section_alignments = "extracted_bounded_sub_reads.initial_section_alignments.txt"
-      File final_section_alignments   = "extracted_bounded_sub_reads.final_section_alignments.txt"
-      File log_file                   = "${log_file_name}"
-      File timing_info                = "${timing_output_file}"
-      File memory_log                 = "${memory_log_file}"
+      File extracted_reads      = "extracted_bounded_sub_reads.fasta"
+      File log_file             = "${log_file_name}"
+      File timing_info          = "${timing_output_file}"
+      File memory_log           = "${memory_log_file}"
     }
  }
-

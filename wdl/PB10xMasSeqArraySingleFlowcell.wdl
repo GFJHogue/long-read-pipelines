@@ -42,7 +42,7 @@ workflow PB10xMasSeqSingleFlowcell {
         String? sample_name
     }
 
-    parameter_meta{
+    parameter_meta {
         gcs_input_dir : "Input folder on GCS in which to search for BAM files to process."
         gcs_out_root_dir : "Root output GCS folder in which to place results of this workflow."
 
@@ -285,6 +285,7 @@ workflow PB10xMasSeqSingleFlowcell {
             ebr_final_section_alignments   = MergeArrayElementFinalSections_3.merged_file,
             ebr_bounds_file                = boundaries_file,
 
+            # TODO: Merge these 10x stats files first before generating the report!  These are not correct numbers!
             ten_x_metrics_file             = AnnotateArrayElements.stats[0][0],
             rna_seq_metrics_file           = ArrayElementRnaSeqMetrics.rna_metrics,
 
@@ -311,6 +312,7 @@ workflow PB10xMasSeqSingleFlowcell {
             ebr_final_section_alignments   = MergeArrayElementFinalSections_3.merged_file,
             ebr_bounds_file                = boundaries_file,
 
+            # TODO: Merge these 10x stats files first before generating the report!  These are not correct numbers!
             ten_x_metrics_file             = AnnotateArrayElements.stats[0][0],
             rna_seq_metrics_file           = ArrayElementRnaSeqMetrics.rna_metrics,
 

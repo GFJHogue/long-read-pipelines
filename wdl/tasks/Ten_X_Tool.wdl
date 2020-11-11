@@ -3,6 +3,13 @@ version 1.0
 import "Utils.wdl" as Utils
 
 workflow AnnotateBarcodesAndUMIsWorkflow {
+
+    meta {
+        description : "Run the 10x tool on a bam file containing 10x library prepared reads to annotate each read with the adapter locations."
+        author : "Jonn Smith"
+        email : "jonn@broadinstitute.org"
+    }
+
     input {
         File bam_file
         File? bam_index
@@ -24,6 +31,31 @@ workflow AnnotateBarcodesAndUMIsWorkflow {
         Int? disk_space_gb
         Int? mem_gb
         Int? preemptible_attempts
+    }
+
+    parameter_meta {
+
+        bam_file : "BAM file containing reads from a 10x library preparation as sequenced off of a PacBio Sequel II."
+        bam_index : "[optional] Index file for the given bam_file."
+
+        head_adapter_fasta : "FASTA file containing the sequence that each transcript should start with.  Typically this will be the 10x adapter sequence from the 10x library prep."
+        tail_adapter_fasta : "FASTA file containing the sequence that each transcript should end with.  Typically this will be the Template Switch Oligo (TSO) sequence from the 10x library prep."
+        read_end_length : "Number of bases at either end of the read to check for the adapters."
+
+        use_rle : "[optional] If true, run-length encode the data before processing it."
+
+        whitelist_10x : "[optional] Barcode whitelist from the 10x library prep.  If provided, only reads matching one of these barcodes will be annotated and output."
+        whitelist_illumina : "[optional] Additional barcode whitelist from a parallel Illumina sequencing run.  If this option is provided, you must also supply the `whitelist_10x` barcode file.  When both this and the `whitelist_10x` barcode file are supplied, only reads matching barcodes in this file will be annotated and output."
+
+        poly_t_length : "[optional] Expected length of the poly-T region in this library preparation (default: 10)."
+        barcode_length : "[optional] Length of the barcode region in this library preparation (default: 16)."
+        umi_length : "[optional] Length of the UMI region in this library preparation (default: 12)."
+
+        mem_gb : "[optional] Amount of memory to give to the machine running each task in this workflow."
+        preemptible_attempts : "[optional] Number of times to allow each task in this workflow to be preempted."
+        disk_space_gb : "[optional] Amount of storage disk space (in Gb) to give to each machine running each task in this workflow."
+        cpu : "[optional] Number of CPU cores to give to each machine running each task in this workflow."
+        boot_disk_size_gb : "[optional] Amount of boot disk space (in Gb) to give to each machine running each task in this workflow."
     }
 
     RuntimeAttr shard_runtime_attrs = object {

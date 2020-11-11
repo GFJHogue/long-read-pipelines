@@ -1,27 +1,12 @@
 version 1.0
 
-# Analyze transcript isoforms with Flair.
-#
-# https://github.com/BrooksLabUCSC/flair
-#
-# Description of inputs:
-#
-#   Required:
-#     File unaligned_reads       - FASTA/FASTQ file containing unaligned reads.  This should correspond to the given aligned_reads file.
-#     File aligned_reads         - SAM/BAM file containing aligned reads.  This should correspond to the given unaligned_reads file.
-#     File gtf_annotations       - GTF file containing gene annotations for the reference to which the given reads are aligned.
-#     File reference_fasta       - FASTA file containing the reference sequence.
-#     File reference_fasta_index - Index for the given reference_fasta file.
-#     File reference_seq_dict    - Sequence Dictionary for the given reference_fasta file.
-#
-#   Runtime:
-#     Int  mem                   - Amount of memory to give to the machine running each task in this workflow.
-#     Int  preemptible_attempts  - Number of times to allow each task in this workflow to be preempted.
-#     Int  disk_space_gb         - Amount of storage disk space (in Gb) to give to each machine running each task in this workflow.
-#     Int  cpu                   - Number of CPU cores to give to each machine running each task in this workflow.
-#     Int  boot_disk_size_gb     - Amount of boot disk space (in Gb) to give to each machine running each task in this workflow.
-#
 task AnalyzeWithFlairTask {
+
+    meta {
+        description : "Analyze transcript isoforms with Flair.  (https://github.com/BrooksLabUCSC/flair)"
+        author : "Jonn Smith"
+        email : "jonn@broadinstitute.org"
+    }
 
     input {
         # ------------------------------------------------
@@ -31,6 +16,7 @@ task AnalyzeWithFlairTask {
         File unaligned_reads
         File aligned_reads
         File gtf_annotations
+
         File reference_fasta
         File reference_fasta_index
         File reference_seq_dict
@@ -40,6 +26,22 @@ task AnalyzeWithFlairTask {
         Int? disk_space_gb
         Int? cpu
         Int? boot_disk_size_gb
+    }
+
+    parameter_meta {
+        unaligned_reads : "FASTA/FASTQ file containing unaligned reads.  This should correspond to the given aligned_reads file."
+        aligned_reads : "SAM/BAM file containing aligned reads.  This should correspond to the given unaligned_reads file."
+        gtf_annotations : "GTF file containing gene annotations for the reference to which the given reads are aligned."
+
+        reference_fasta : "FASTA file containing the reference sequence."
+        reference_fasta_index : "Index for the given reference_fasta file."
+        reference_seq_dict : "Sequence Dictionary for the given reference_fasta file."
+
+        mem_gb : "[optional] Amount of memory to give to the machine running each task in this workflow."
+        preemptible_attempts : "[optional] Number of times to allow each task in this workflow to be preempted."
+        disk_space_gb : "[optional] Amount of storage disk space (in Gb) to give to each machine running each task in this workflow."
+        cpu : "[optional] Number of CPU cores to give to each machine running each task in this workflow."
+        boot_disk_size_gb : "[optional] Amount of boot disk space (in Gb) to give to each machine running each task in this workflow."
     }
 
     # Docker image:
@@ -160,30 +162,13 @@ task AnalyzeWithFlairTask {
     }
  }
 
-# Quantify and Visualize results from FLAIR tool output (i.e. from AnalyzeWithFlairTask)
-#
-# https://github.com/BrooksLabUCSC/flair
-#
-# Description of inputs:
-#
-#   Required:
-#     File unaligned_reads                  - FASTA/FASTQ file containing unaligned reads.  This should correspond to the given aligned_reads file.
-#     File flair_collapsed_isoforms_fasta   - A collapsed isoforms fasta file created by `flair collapse`.
-#     File flair_collapsed_isoforms_bed     - A collapsed isoforms bed file created by `flair collapse`.
-#
-#     File gtf_annotations                  - GTF file containing gene annotations for the reference to which the given reads are aligned.
-#     File reference_fasta                  - FASTA file containing the reference sequence.
-#     File reference_fasta_index            - Index for the given reference_fasta file.
-#     File reference_seq_dict               - Sequence Dictionary for the given reference_fasta file.
-#
-#   Runtime:
-#     Int  mem                              - Amount of memory to give to the machine running each task in this workflow.
-#     Int  preemptible_attempts             - Number of times to allow each task in this workflow to be preempted.
-#     Int  disk_space_gb                    - Amount of storage disk space (in Gb) to give to each machine running each task in this workflow.
-#     Int  cpu                              - Number of CPU cores to give to each machine running each task in this workflow.
-#     Int  boot_disk_size_gb                - Amount of boot disk space (in Gb) to give to each machine running each task in this workflow.
-#
 task QuantifyAndVisualizeFlairResults {
+
+    meta {
+        description : "Quantify and Visualize results from FLAIR tool output (i.e. from AnalyzeWithFlairTask).  (https://github.com/BrooksLabUCSC/flair)"
+        author : "Jonn Smith"
+        email : "jonn@broadinstitute.org"
+    }
 
     input {
         # ------------------------------------------------
@@ -204,6 +189,23 @@ task QuantifyAndVisualizeFlairResults {
         Int? disk_space_gb
         Int? cpu
         Int? boot_disk_size_gb
+    }
+
+    parameter_meta {
+        unaligned_reads : "FASTA/FASTQ file containing unaligned reads.  This should correspond to the given aligned_reads file."
+        flair_collapsed_isoforms_fasta : "A collapsed isoforms fasta file created by `flair collapse`."
+        flair_collapsed_isoforms_bed : "A collapsed isoforms bed file created by `flair collapse`."
+
+        gtf_annotations : "GTF file containing gene annotations for the reference to which the given reads are aligned."
+        reference_fasta : "FASTA file containing the reference sequence."
+        reference_fasta_index : "Index for the given reference_fasta file."
+        reference_seq_dict : "Sequence Dictionary for the given reference_fasta file."
+
+        mem_gb : "[optional] Amount of memory to give to the machine running each task in this workflow."
+        preemptible_attempts : "[optional] Number of times to allow each task in this workflow to be preempted."
+        disk_space_gb : "[optional] Amount of storage disk space (in Gb) to give to each machine running each task in this workflow."
+        cpu : "[optional] Number of CPU cores to give to each machine running each task in this workflow."
+        boot_disk_size_gb : "[optional] Amount of boot disk space (in Gb) to give to each machine running each task in this workflow."
     }
 
     # Docker image:
@@ -324,25 +326,15 @@ task QuantifyAndVisualizeFlairResults {
     }
  }
 
-# Plot Isoforms Usage for a Gene from Flair Results
-#
-# https://github.com/BrooksLabUCSC/flair
-#
-# Description of inputs:
-#
-#   Required:
-#     String gene_name                    - The name of the gene for which to create plots.
-#     File flair_collapsed_isoforms_bed   - A collapsed isoforms bed file created by `flair collapse`.
-#     File flair_quantified_counts_matrix - A count matrix file created by `flair quantify`.
-#
-#   Runtime:
-#     Int  mem                   - Amount of memory to give to the machine running each task in this workflow.
-#     Int  preemptible_attempts  - Number of times to allow each task in this workflow to be preempted.
-#     Int  disk_space_gb         - Amount of storage disk space (in Gb) to give to each machine running each task in this workflow.
-#     Int  cpu                   - Number of CPU cores to give to each machine running each task in this workflow.
-#     Int  boot_disk_size_gb     - Amount of boot disk space (in Gb) to give to each machine running each task in this workflow.
-#
+
 task FlairPlotIsoformUsage {
+
+    meta {
+        description : "Plot Isoforms Usage for a Gene from Flair Results.  (https://github.com/BrooksLabUCSC/flair)"
+        author : "Jonn Smith"
+        email : "jonn@broadinstitute.org"
+    }
+
 
     input {
         # ------------------------------------------------
@@ -363,6 +355,23 @@ task FlairPlotIsoformUsage {
         Int? disk_space_gb
         Int? cpu
         Int? boot_disk_size_gb
+    }
+
+    parameter_meta {
+        gene_name : "The name of the gene for which to create plots."
+        flair_collapsed_isoforms_bed : "A collapsed isoforms bed file created by `flair collapse`."
+        flair_quantified_counts_matrix : "A count matrix file created by `flair quantify`."
+
+        gtf_annotations : "GTF file containing gene annotations for the reference to which the given reads are aligned."
+        reference_fasta : "FASTA file containing the reference sequence."
+        reference_fasta_index : "Index for the given reference_fasta file."
+        reference_seq_dict : "Sequence Dictionary for the given reference_fasta file."
+
+        mem_gb : "[optional] Amount of memory to give to the machine running each task in this workflow."
+        preemptible_attempts : "[optional] Number of times to allow each task in this workflow to be preempted."
+        disk_space_gb : "[optional] Amount of storage disk space (in Gb) to give to each machine running each task in this workflow."
+        cpu : "[optional] Number of CPU cores to give to each machine running each task in this workflow."
+        boot_disk_size_gb : "[optional] Amount of boot disk space (in Gb) to give to each machine running each task in this workflow."
     }
 
     # Docker image:
