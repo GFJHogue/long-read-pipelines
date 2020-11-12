@@ -2,6 +2,8 @@ version 1.0
 
 import "Utils.wdl" as Utils
 
+# TODO: Merge this file and `AnnotateAdapters.wdl`
+
 workflow AnnotateBarcodesAndUMIsWorkflow {
 
     meta {
@@ -16,8 +18,6 @@ workflow AnnotateBarcodesAndUMIsWorkflow {
         File head_adapter_fasta
         File tail_adapter_fasta
         Int read_end_length
-
-        Boolean use_rle = false
 
         File? whitelist_10x
         File? whitelist_illumina
@@ -41,8 +41,6 @@ workflow AnnotateBarcodesAndUMIsWorkflow {
         head_adapter_fasta : "FASTA file containing the sequence that each transcript should start with.  Typically this will be the 10x adapter sequence from the 10x library prep."
         tail_adapter_fasta : "FASTA file containing the sequence that each transcript should end with.  Typically this will be the Template Switch Oligo (TSO) sequence from the 10x library prep."
         read_end_length : "Number of bases at either end of the read to check for the adapters."
-
-        use_rle : "[optional] If true, run-length encode the data before processing it."
 
         whitelist_10x : "[optional] Barcode whitelist from the 10x library prep.  If provided, only reads matching one of these barcodes will be annotated and output."
         whitelist_illumina : "[optional] Additional barcode whitelist from a parallel Illumina sequencing run.  If this option is provided, you must also supply the `whitelist_10x` barcode file.  When both this and the `whitelist_10x` barcode file are supplied, only reads matching barcodes in this file will be annotated and output."
@@ -77,7 +75,6 @@ workflow AnnotateBarcodesAndUMIsWorkflow {
                 head_adapter_fasta = head_adapter_fasta,
                 tail_adapter_fasta = tail_adapter_fasta,
                 read_end_length = read_end_length,
-                use_rle = use_rle,
                 whitelist_10x = whitelist_10x,
                 whitelist_illumina = whitelist_illumina,
                 poly_t_length = poly_t_length,
@@ -109,8 +106,6 @@ task AnnotateBarcodesAndUMIs {
         File tail_adapter_fasta
         Int read_end_length
 
-        Boolean use_rle = false
-
         File? whitelist_10x
         File? whitelist_illumina
 
@@ -127,8 +122,6 @@ task AnnotateBarcodesAndUMIs {
 
     # ------------------------------------------------
     # Set runtime options:
-    String tool_script = if use_rle then "tool_rle.py" else "tool.py"
-
     String whitelist_10x_arg = if defined(whitelist_10x) then " --whitelist-10x " else ""
     String whitelist_ilmn_arg = if defined(whitelist_illumina) then " --whitelist-illumina " else ""
 
@@ -172,7 +165,7 @@ task AnnotateBarcodesAndUMIs {
         bwa index ~{head_adapter_fasta}
         bwa index ~{tail_adapter_fasta}
 
-        python /lrma/~{tool_script} \
+        python /lrma/tool.py \
             --bam=~{bam_file} \
             --adapter=~{head_adapter_fasta} \
             --reverse-adapter=~{tail_adapter_fasta} \
