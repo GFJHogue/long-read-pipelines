@@ -45,7 +45,7 @@ task AnalyzeWithFlairTask {
     }
 
     # Docker image:
-    String docker_image = "jonnsmith/lrma_cartographer:latest"
+    String docker_image = "us.gcr.io/broad-dsp-lrma/lr-cartographer:0.0.1"
 
     # ------------------------------------------------
     # Process input args:
@@ -209,7 +209,7 @@ task QuantifyAndVisualizeFlairResults {
     }
 
     # Docker image:
-    String docker_image = "jonnsmith/lrma_cartographer:latest"
+    String docker_image = "us.gcr.io/broad-dsp-lrma/lr-cartographer:0.0.1"
 
     # ------------------------------------------------
     # Process input args:
@@ -375,7 +375,7 @@ task FlairPlotIsoformUsage {
     }
 
     # Docker image:
-    String docker_image = "jonnsmith/lrma_cartographer:latest"
+    String docker_image = "us.gcr.io/broad-dsp-lrma/lr-cartographer:0.0.1"
 
     # ------------------------------------------------
     # Process input args:

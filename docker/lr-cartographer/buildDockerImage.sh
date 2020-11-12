@@ -19,3 +19,14 @@ time docker build -t ${IMAGE_NAME} .
 ########################################
 # Clean local files:
 
+########################################
+# Instructions for user:
+
+echo "You must now tag these images as the next version and \`latest\` then upload them to us.gcr.io/broad-dsp-lrma/lr-cartographer:"
+echo ""
+echo "  docker tag lr-cartographer:latest us.gcr.io/broad-dsp-lrma/lr-cartographer:latest"
+echo "  docker tag lr-cartographer:latest us.gcr.io/broad-dsp-lrma/lr-cartographer:<NEXT_VERSION>"
+echo ""
+echo "  docker push us.gcr.io/broad-dsp-lrma/lr-cartographer:latest"
+echo "  docker push us.gcr.io/broad-dsp-lrma/lr-cartographer:<NEXT_VERSION>"
+

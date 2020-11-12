@@ -39,3 +39,18 @@ echo -e "\t${IMAGE_NAME}${INTERACTIVE_SUFFIX}:latest"
 ########################################
 # Clean local files:
 
+########################################
+# Instructions for user:
+
+echo "You must now tag these images as the next version and \`latest\` then upload them to us.gcr.io/broad-dsp-lrma/lr-jupyter:"
+echo ""
+echo "  docker tag lr-jupyter:latest us.gcr.io/broad-dsp-lrma/lr-jupyter:latest"
+echo "  docker tag lr-jupyter_interactive:latest us.gcr.io/broad-dsp-lrma/lr-jupyter_interactive:latest"
+echo "  docker tag lr-jupyter:latest us.gcr.io/broad-dsp-lrma/lr-jupyter:<NEXT_VERSION>"
+echo "  docker tag lr-jupyter_interactive:latest us.gcr.io/broad-dsp-lrma/lr-jupyter_interactive:<NEXT_VERSION>"
+echo ""
+echo "  docker push us.gcr.io/broad-dsp-lrma/lr-jupyter:latest"
+echo "  docker push us.gcr.io/broad-dsp-lrma/lr-jupyter:<NEXT_VERSION>"
+echo "  docker push us.gcr.io/broad-dsp-lrma/lr-jupyter_interactive:latest"
+echo "  docker push us.gcr.io/broad-dsp-lrma/lr-jupyter_interactive:<NEXT_VERSION>"
+

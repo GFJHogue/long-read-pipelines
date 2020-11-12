@@ -48,7 +48,7 @@ workflow Cartographer {
         Int? boot_disk_size_gb
     }
 
-    String docker_image = "jonnsmith/lrma_cartographer:latest"
+    String docker_image = "us.gcr.io/broad-dsp-lrma/lr-cartographer:0.0.1"
 
     call SplitFastaFileTask {
         input:
