@@ -202,7 +202,7 @@ task AnnotateAdapters {
             --ssw-path /lrma/ssw/ \
             --starcode-path /lrma/starcode-master/starcode
 
-        /opt/conda/envs/10x_tool/bin/samtools fastq -T ZA,CR,ZU,CB ~{output_name}_annotated.bam | gzip > ~{output_name}_annotated.fastq.gz
+        samtools fastq -T ZA,CR,ZU,CB ~{output_name}_annotated.bam | gzip > ~{output_name}_annotated.fastq.gz
     >>>
 
     output {
