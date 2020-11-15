@@ -21,23 +21,23 @@ workflow PB10xMasSeqSingleFlowcell {
 
     input {
         String gcs_input_dir
-        String gcs_out_root_dir
+        String gcs_out_root_dir = "gs://broad-dsde-methods-long-reads-outgoing/PB10xMasSeqSingleFlowcell"
 
-        File segments_fasta
-        File boundaries_file
+        File segments_fasta = "gs://broad-dsde-methods-long-reads/resources/MASseq_0.0.1/cDNA_array_8x.unique_seqs_for_cartographer.fasta"
+        File boundaries_file = "gs://broad-dsde-methods-long-reads/resources/MASseq_0.0.1/bounds_file_for_extraction.txt"
 
-        File head_adapter_fasta
-        File tail_adapter_fasta
+        File head_adapter_fasta = "gs://broad-dsde-methods-long-reads/resources/MASseq_0.0.1/10x_adapter.fasta"
+        File tail_adapter_fasta = "gs://broad-dsde-methods-long-reads/resources/MASseq_0.0.1/tso_adapter.fasta"
 
-        File ref_fasta
-        File ref_fasta_index
-        File ref_fasta_dict
+        File ref_fasta =  "gs://broad-dsde-methods-long-reads/resources/references/grch38/Homo_sapiens_assembly38.fasta"
+        File ref_fasta_index = "gs://broad-dsde-methods-long-reads/resources/references/grch38/Homo_sapiens_assembly38.fasta.fai"
+        File ref_fasta_dict = "gs://broad-dsde-methods-long-reads/resources/references/grch38/Homo_sapiens_assembly38.dict"
 
-        File ref_flat_annotations
+        File ref_flat_annotations = "gs://broad-dsde-methods-long-reads/resources/references/grch38/refFlat.txt"
 
-        File jupyter_template_interactive
-        File jupyter_template_static
-        File workflow_dot_file
+        File jupyter_template_interactive = "gs://broad-dsde-methods-long-reads/resources/MASseq_0.0.1/MAS-seq_QC_report_template-interactive.ipynb"
+        File jupyter_template_static = "gs://broad-dsde-methods-long-reads/resources/MASseq_0.0.1/MAS-seq_QC_report_template-static.ipynb"
+        File workflow_dot_file = "gs://broad-dsde-methods-long-reads/resources/MASseq_0.0.1/PB10xMasSeqArraySingleFlowcell.dot"
 
         String? sample_name
     }
