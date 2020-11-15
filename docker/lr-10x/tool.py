@@ -686,3 +686,4 @@ if __name__ == '__main__':
 
     main(args.bam, args.name, args.adapter, args.reverse_adapter, args.whitelist_10x, args.whitelist_illumina,
          args.max_reads, args.contig, args.read_end_length, args.record_umis, args.ssw_path, args.starcode_path)
+

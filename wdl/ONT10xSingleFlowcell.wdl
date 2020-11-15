@@ -221,7 +221,7 @@ task AnnotateAdapters {
         boot_disk_gb:       10,
         preemptible_tries:  3,
         max_retries:        1,
-        docker:             "us.gcr.io/broad-dsp-lrma/lr-10x:0.1.9"
+        docker:             "us.gcr.io/broad-dsp-lrma/lr-10x:0.1.11"
     }
     RuntimeAttr runtime_attr = select_first([runtime_attr_override, default_attr])
     runtime {

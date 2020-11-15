@@ -195,7 +195,7 @@ task AnnotateBarcodesAndUMIs {
 
     }
     runtime {
-        docker: "us.gcr.io/broad-dsp-lrma/lr-10x:0.1.10"
+        docker: "us.gcr.io/broad-dsp-lrma/lr-10x:0.1.11"
         memory: machine_mem + " MB"
         disks: "local-disk " + select_first([disk_space_gb, default_disk_space_gb]) + if use_ssd then " SSD" else " HDD"
         bootDiskSizeGb: select_first([boot_disk_size_gb, default_boot_disk_size_gb])
