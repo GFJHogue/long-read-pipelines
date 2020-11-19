@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-IMAGE_NAME=lr-cartographer
+IMAGE_NAME=lr-transcript_utils
 
 ########################################
 # Prepare environment: 
