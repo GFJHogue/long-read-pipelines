@@ -5,7 +5,7 @@ import "tasks/Utils.wdl" as Utils
 import "tasks/Finalize.wdl" as FF
 import "tasks/AlignReads.wdl" as AR
 import "tasks/Cartographer.wdl" as CART
-import "tasks/AnalyzeTranscriptIsoforms.wdl" as ISO
+import "tasks/TranscriptAnalysis/Flair_Tasks.wdl" as ISO
 import "tasks/ReadsMetrics.wdl" as RM
 import "tasks/AlignedMetrics.wdl" as AM
 import "tasks/Ten_X_Tool.wdl" as TENX
