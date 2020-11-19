@@ -78,7 +78,51 @@ task RunSalmonQuantTask {
     }
 
     runtime {
-        docker: "combinelab/salmon"
+        # This should not require much in the way of memory, space, or cpus since we're doing 1 read at a time.
+        # Let's try 2 cores. 4gb mem (e2-small machine - $0.01055/hr non-preemptible)
+        docker: "us.gcr.io/broad-dsp-lrma/lr-transcript_utils:0.0.1"
+        memory: 4 + " GiB"
+        disks: "local-disk " + disk_size + " HDD"
+        boot_disk_gb: 10
+        preemptible: 0
+        cpu: 2
+    }
+}
+
+task ConvertQuantFilesToCountMatrix {
+
+    meta {
+        description : "Convert a set of files produced by `salmon quant` (via RunSalmonQuantTask) into a single count matrix containing all the data."
+        author : "Jonn Smith"
+        email : "jonn@broadinstitute.org"
+    }
+
+    input {
+        Array[File] quant_files
+    }
+
+    parameter_meta {
+        quant_files : "Array of salmon quant.sf files to convert into a single count matrix."
+    }
+
+    # 5x the total size of all input files - probably overkill
+    Int disk_size = 5*ceil(size(quant_files, "GB"))
+
+    command {
+        # Run the script on the current directory, which should have the quant.sf files in it.
+        # This will combine all the counts into a single TSV file, then it will convert that TSV to
+        # an h5ad file for convenience of importing into scanpy later.
+
+        /python_scripts/process_quant_files_into_tsv.py .
+    }
+
+    output {
+        File count_matrix_tsv = "differential_expression-known_isoforms.tsv"
+        File count_matrix_h5ad = "differential_expression-known_isoforms.h5ad"
+    }
+
+    runtime {
+        docker: "us.gcr.io/broad-dsp-lrma/lr-transcript_utils:0.0.1"
         memory: 16 + " GiB"
         disks: "local-disk " + disk_size + " HDD"
         boot_disk_gb: 10
@@ -86,3 +130,4 @@ task RunSalmonQuantTask {
         cpu: 8
     }
 }
+

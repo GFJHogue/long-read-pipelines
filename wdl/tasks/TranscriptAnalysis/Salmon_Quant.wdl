@@ -31,6 +31,11 @@ workflow RunSalmonOnCellBarcodedReads {
         }
     }
 
+    call SALMON.ConvertQuantFilesToCountMatrix as make_count_matrix {
+        input:
+            quant_files = salmon_quant.quant_file
+    }
+
     # ------------------------------------------------
     # Outputs:
     output {
@@ -45,5 +50,8 @@ workflow RunSalmonOnCellBarcodedReads {
       Array[File] observed_biases   = salmon_quant.observed_bias
       Array[File] observed_bias_3ps = salmon_quant.observed_bias_3p
       Array[File] logs              = salmon_quant.log
+
+      File salmon_count_matrix_tsv  = make_count_matrix.count_matrix_tsv
+      File salmon_count_matrix_h5ad = make_count_matrix.count_matrix_h5ad
     }
 }
