@@ -104,7 +104,7 @@ RUN python3.8 -m pip install scanpy
 
 # Install our scripts:
 RUN mkdir /python_scripts 
-COPY python/* /python_scripts
+COPY python/* /python_scripts/
 RUN chmod +x /python_scripts/*.py
 
 ################################################################################

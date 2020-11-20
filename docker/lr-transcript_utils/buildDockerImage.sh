@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -e
+
 IMAGE_NAME=lr-transcript_utils
 
 ########################################
