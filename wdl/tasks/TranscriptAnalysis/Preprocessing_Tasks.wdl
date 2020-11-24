@@ -21,15 +21,19 @@ task SplitBamBySampleAndCellBarcodeTask {
     # 10x the total size of the input bam (uncompressed reads)
     # 1x for the file itself
     # 1x for wiggle-room
-    Int disk_size = (10+1+1) * ceil(size(aligned_annotated_bam, "GB"))
+    # 2x for tar/gz-ing the output:
+    Int disk_size = ((10+1+1)*2) * ceil(size(aligned_annotated_bam, "GB"))
+
+    String fasta_tar_gz_name = "fasta_files_by_sample_and_barcode.tar.gz"
 
     command {
         /python_scripts/split_annotated_reads_by_sample_and_cell_barcode.py -b ~{aligned_annotated_bam} -o ~{output_base_name}
+        tar -zcf ~{fasta_tar_gz_name} *.fasta
     }
 
     output {
         File flair_manifest = "${output_base_name}_flair_reads_manifest.tsv"
-        Array[File] sample_cb_fasta_files = glob("*.fasta")
+        File fasta_tar_gz_out = "~{fasta_tar_gz_name}"
     }
 
     runtime {

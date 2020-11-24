@@ -1,5 +1,145 @@
 version 1.0
 
+task FlairQuant {
+
+    meta {
+        description : "Quantify transcript isoforms using FLAIR quantify."
+        author : "Jonn Smith"
+        email : "jonn@broadinstitute.org"
+    }
+
+    input {
+        # ------------------------------------------------
+        # Input args:
+        # Required:
+
+        File fasta_tar_gz
+        File transcript_isoforms_fasta
+        String out_base_name = "reads"
+
+        Int? mem_gb
+        Int? preemptible_attempts
+        Int? disk_space_gb
+        Int? cpu
+        Int? boot_disk_size_gb
+    }
+
+    parameter_meta {
+        fasta_tar_gz : "tar.gz file contianing FASTA files, each with reads from the same sample / cell barcode to quantify for transcripts.  Corresponds to `fasta_tar_gz_out` from Preprocessing_Tasks.SplitBamBySampleAndCellBarcodeTask."
+        transcript_isoforms_fasta : "FASTA file containing isoforms sequences to quantify."
+        out_base_name : "[optional] Base name for the resulting output file.  Ideally should be a unique identifier for this dataset."
+
+        mem_gb : "[optional] Amount of memory to give to the machine running each task in this workflow."
+        preemptible_attempts : "[optional] Number of times to allow each task in this workflow to be preempted."
+        disk_space_gb : "[optional] Amount of storage disk space (in Gb) to give to each machine running each task in this workflow."
+        cpu : "[optional] Number of CPU cores to give to each machine running each task in this workflow."
+        boot_disk_size_gb : "[optional] Amount of boot disk space (in Gb) to give to each machine running each task in this workflow."
+    }
+
+    # ------------------------------------------------
+    # Process input args:
+
+    String log_file_name = "flair.log"
+    String timing_output_file = "timingInformation.txt"
+    String memory_log_file = "memory_log.txt"
+
+    # ------------------------------------------------
+    # Get machine settings:
+    Boolean use_ssd = false
+
+    # Triple our input file size for our disk size - should be plenty.
+    Float input_files_size_gb = 3*(size(fasta_tar_gz, "GiB") + size(transcript_isoforms_fasta, "GiB"))
+
+    # You may have to change the following two parameter values depending on the task requirements
+    Int default_ram_mb = 4096
+    Int default_disk_space_gb = ceil((input_files_size_gb * 2) + 1024)
+
+    Int default_boot_disk_size_gb = 15
+
+    # Mem is in units of GB but our command and memory runtime values are in MB
+    Int machine_mem = if defined(mem_gb) then mem_gb * 1024 else default_ram_mb
+
+    # ------------------------------------------------
+    # Run our command:
+    command <<<
+        # Set up memory logging daemon:
+        MEM_LOG_INTERVAL_s=5
+        DO_MEMORY_LOG=true
+        while $DO_MEMORY_LOG ; do
+            date
+            date +%s
+            cat /proc/meminfo
+            sleep $MEM_LOG_INTERVAL_s
+        done >> ~{memory_log_file} &
+        mem_pid=$!
+
+        set -e
+
+        # Do the real work here:
+        startTime=`date +%s.%N`
+        echo "StartTime: $startTime" > ~{timing_output_file}
+
+        echo "Extracting fasta files from: ~{fasta_tar_gz} ..."
+        tar -zxf ~{fasta_tar_gz}
+        echo "Done."
+
+        echo "Generating reads manifest file..."
+        reads_manifest_file="flair_reads_manifest.tsv"
+        ls *.fasta | grep -v '~{transcript_isoforms_fasta}' | awk -F"_" 'BEGIN{OFS="\t"}{z=$0;sub(".*/", "", $0);sub(".fasta", "", $0); print $2,"A",$3,z}' > $reads_manifest_file
+        echo "Done"
+
+        echo "Quantifying flair results..."
+
+        python /flair/flair.py quantify -r $reads_manifest_file -i ~{transcript_isoforms_fasta} -o ~{out_base_name}.flair.counts_matrix.tsv
+
+        endTime=`date +%s.%N`
+        echo "EndTime: $endTime" >> ~{timing_output_file}
+
+        # Stop the memory daemon softly.  Then stop it hard if it's not cooperating:
+        set +e
+        DO_MEMORY_LOG=false
+        sleep $(($MEM_LOG_INTERVAL_s  * 2))
+        kill -0 $mem_pid &> /dev/null
+        if [ $? -ne 0 ] ; then
+            kill -9 $mem_pid
+        fi
+
+        # Get and compute timing information:
+        set +e
+        elapsedTime=""
+        which bc &> /dev/null ; bcr=$?
+        which python3 &> /dev/null ; python3r=$?
+        which python &> /dev/null ; pythonr=$?
+        if [[ $bcr -eq 0 ]] ; then elapsedTime=`echo "scale=6;$endTime - $startTime" | bc`;
+        elif [[ $python3r -eq 0 ]] ; then elapsedTime=`python3 -c "print( $endTime - $startTime )"`;
+        elif [[ $pythonr -eq 0 ]] ; then elapsedTime=`python -c "print( $endTime - $startTime )"`;
+        fi
+        echo "Elapsed Time: $elapsedTime" >> ~{timing_output_file}
+    >>>
+
+    # ------------------------------------------------
+    # Runtime settings:
+     runtime {
+         docker: "us.gcr.io/broad-dsp-lrma/lr-transcript_utils:0.0.1"
+         memory: machine_mem + " MB"
+         disks: "local-disk " + select_first([disk_space_gb, default_disk_space_gb]) + if use_ssd then " SSD" else " HDD"
+         bootDiskSizeGb: select_first([boot_disk_size_gb, default_boot_disk_size_gb])
+         preemptible: select_first([preemptible_attempts, 0])
+         cpu: select_first([cpu, 1])
+     }
+
+    # ------------------------------------------------
+    # Outputs:
+    output {
+      # Default output file name:
+      File count_matrix         = "${out_base_name}.flair.counts_matrix.tsv"
+
+      File log_file             = "${log_file_name}"
+      File timing_info          = "${timing_output_file}"
+      File memory_log           = "${memory_log_file}"
+    }
+}
+
 task AnalyzeWithFlairTask {
 
     meta {
