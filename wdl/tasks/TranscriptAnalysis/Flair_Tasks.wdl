@@ -39,7 +39,6 @@ task FlairQuant {
     # ------------------------------------------------
     # Process input args:
 
-    String log_file_name = "flair.log"
     String timing_output_file = "timingInformation.txt"
     String memory_log_file = "memory_log.txt"
 
@@ -124,7 +123,8 @@ task FlairQuant {
          memory: machine_mem + " MB"
          disks: "local-disk " + select_first([disk_space_gb, default_disk_space_gb]) + if use_ssd then " SSD" else " HDD"
          bootDiskSizeGb: select_first([boot_disk_size_gb, default_boot_disk_size_gb])
-         preemptible: select_first([preemptible_attempts, 0])
+         preemptible: sel
+         ect_first([preemptible_attempts, 0])
          cpu: select_first([cpu, 1])
      }
 
@@ -134,7 +134,6 @@ task FlairQuant {
       # Default output file name:
       File count_matrix         = "${out_base_name}.flair.counts_matrix.tsv"
 
-      File log_file             = "${log_file_name}"
       File timing_info          = "${timing_output_file}"
       File memory_log           = "${memory_log_file}"
     }
