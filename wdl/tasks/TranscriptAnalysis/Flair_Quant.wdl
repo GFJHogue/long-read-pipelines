@@ -50,7 +50,6 @@ workflow RunFlairQuant {
       # Default output file name:
       File count_matrix         = quant.count_matrix
 
-      File log_file             = quant.log_file
       File timing_info          = quant.timing_info
       File memory_log           = quant.memory_log
     }
