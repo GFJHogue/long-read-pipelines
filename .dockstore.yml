@@ -3,4 +3,4 @@ workflows:
 - name: ONTWholeGenome
   subclass: wdl
   primaryDescriptorPath: /wdl/ONTWholeGenome.wdl
-  testParameterFiles: 
+  testParameterFiles:
